@@ -97,7 +97,10 @@ Run it before every deploy. Run it in CI to make the §9 claim verifiable from o
 Environment:
 
 - `LINK_CHECK_TIMEOUT_MS` (default 8000) — per-request timeout
+- `SPA_CANONICAL` (optional, recommended in CI) — when set to the doc's canonical URL (e.g. `https://spa.etherealconnectionsco.com`), the checker skips URLs matching this prefix. This prevents the chicken-and-egg failure where the doc references its own canonical URL but that URL doesn't exist yet during first deploy. Set in `netlify.toml` under `[build.environment]`.
 - Requires Node ≥ 18 (uses built-in `fetch`)
+
+The script also skips `<link rel="preconnect">` and `<link rel="dns-prefetch">` URLs automatically — these are browser TCP/TLS connection hints, not navigable resources, and would legitimately 404 if fetched directly. Both skip categories are logged as `○ preconnect` or `○ self-ref` in the output, so the deploy log shows exactly what was checked, what was skipped, and why — the inspectability claim survives the skip mechanism.
 
 ---
 
