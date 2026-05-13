@@ -1,11 +1,20 @@
 # ═══════════════════════════════════════════════════════════
 #  Netlify configuration — Sovereign Provenance Architecture
-#  Static site. No build step. Headers + caching + redirects.
+#  Static site. CI-gated link integrity per SPA §9.
+#  Headers + caching + redirects + pre-deploy link check.
 # ═══════════════════════════════════════════════════════════
 
 [build]
   publish = "."
   command = "node check-links.mjs"
+
+[build.environment]
+  # Self-reference URL for check-links.mjs. The doc cites its own
+  # canonical URL in the header and footer; without this env var,
+  # the link checker would 404 on the canonical link during first
+  # deploy (chicken-and-egg). Setting SPA_CANONICAL tells the
+  # checker to skip URLs matching this prefix.
+  SPA_CANONICAL = "https://spa.etherealconnectionsco.com"
 
 # ─── SECURITY HEADERS — applied to all routes ──────────────
 [[headers]]
