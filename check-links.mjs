@@ -1,0 +1,155 @@
+#!/usr/bin/env node
+// ═══════════════════════════════════════════════════════════
+//  check-links.mjs
+//  Link integrity check for the Sovereign Provenance Architecture
+//
+//  Supports the §9 claim: "CI-gated link integrity at issue time."
+//  Run locally: node check-links.mjs
+//  Run in CI:  exit code 0 = pass, non-zero = fail.
+//
+//  Strategy:
+//   1. Parse index.html for all href= and src= attributes.
+//   2. Resolve relative paths against the local filesystem; check
+//      that target file exists.
+//   3. Resolve absolute http(s) URLs and fetch HEAD; require 2xx
+//      or 3xx response. Allow timeout configurable via env.
+//   4. Mailto: links are passed through (format-validated only).
+//   5. Anchor-only (#section) links are passed (would require DOM
+//      to verify and overkills the integrity check).
+//
+//  Exit: zero if all links resolve; non-zero with summary on
+//  failure. Designed to be CI-callable without configuration.
+// ═══════════════════════════════════════════════════════════
+
+import { readFile, access } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const TARGET = process.argv[2] || resolve(__dirname, 'index.html');
+const TIMEOUT_MS = Number(process.env.LINK_CHECK_TIMEOUT_MS) || 8000;
+
+const HREF_RE = /(?:href|src)=["']([^"']+)["']/gi;
+const MAILTO_RE = /^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ANCHOR_RE = /^#/;
+const ABS_URL_RE = /^https?:\/\//i;
+
+function color(c, s) {
+  const codes = { red: 31, green: 32, yellow: 33, blue: 34, dim: 2, reset: 0 };
+  return `\x1b[${codes[c]}m${s}\x1b[0m`;
+}
+
+async function checkLocal(path) {
+  // Strip query/hash, resolve relative to deploy folder
+  const cleaned = path.split('#')[0].split('?')[0];
+  if (!cleaned) return { ok: true, kind: 'anchor-only' };
+  const fsPath = resolve(__dirname, cleaned);
+  try {
+    await access(fsPath, constants.R_OK);
+    return { ok: true, kind: 'local', path: fsPath };
+  } catch {
+    return { ok: false, kind: 'local-missing', path: fsPath };
+  }
+}
+
+async function checkRemote(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    let res = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: { 'User-Agent': 'SPA-link-check/0.1 (+etherealconnectionsco.com)' }
+    });
+    // Some servers reject HEAD; retry with GET
+    if (res.status === 405 || res.status === 403) {
+      res = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow',
+        signal: controller.signal,
+        headers: { 'User-Agent': 'SPA-link-check/0.1 (+etherealconnectionsco.com)' }
+      });
+    }
+    clearTimeout(timer);
+    return { ok: res.status >= 200 && res.status < 400, status: res.status, kind: 'remote' };
+  } catch (err) {
+    clearTimeout(timer);
+    return { ok: false, kind: 'remote-error', error: err.message };
+  }
+}
+
+async function main() {
+  let html;
+  try {
+    html = await readFile(TARGET, 'utf8');
+  } catch (err) {
+    console.error(color('red', `✗ cannot read ${TARGET}: ${err.message}`));
+    process.exit(2);
+  }
+
+  const links = new Set();
+  let match;
+  while ((match = HREF_RE.exec(html)) !== null) {
+    links.add(match[1].trim());
+  }
+
+  console.log(color('dim', `→ ${TARGET}`));
+  console.log(color('dim', `→ ${links.size} unique link${links.size === 1 ? '' : 's'} extracted`));
+  console.log();
+
+  const failures = [];
+  let passed = 0;
+  let skipped = 0;
+
+  for (const link of links) {
+    let result;
+    let label;
+
+    if (MAILTO_RE.test(link)) {
+      result = { ok: true, kind: 'mailto' };
+      label = 'mailto';
+    } else if (ANCHOR_RE.test(link)) {
+      result = { ok: true, kind: 'anchor' };
+      label = 'anchor';
+    } else if (ABS_URL_RE.test(link)) {
+      result = await checkRemote(link);
+      label = `remote ${result.status || result.error || '?'}`;
+    } else if (link.startsWith('data:')) {
+      result = { ok: true, kind: 'data-uri' };
+      label = 'data-uri';
+      skipped++;
+    } else {
+      result = await checkLocal(link);
+      label = result.ok ? 'local' : 'MISSING';
+    }
+
+    if (result.ok) {
+      passed++;
+      console.log(`  ${color('green', '✓')} ${color('dim', label.padEnd(14))} ${link}`);
+    } else {
+      failures.push({ link, result });
+      console.log(`  ${color('red', '✗')} ${color('red', label.padEnd(14))} ${link}`);
+    }
+  }
+
+  console.log();
+  if (failures.length === 0) {
+    console.log(color('green', `✓ all ${passed} links pass · ${skipped} skipped`));
+    process.exit(0);
+  } else {
+    console.log(color('red', `✗ ${failures.length} link${failures.length === 1 ? '' : 's'} failed · ${passed} passed`));
+    for (const { link, result } of failures) {
+      console.log(color('red', `  • ${link}`));
+      if (result.error) console.log(color('dim', `      ${result.error}`));
+      if (result.path) console.log(color('dim', `      ${result.path}`));
+    }
+    process.exit(1);
+  }
+}
+
+main().catch(err => {
+  console.error(color('red', `✗ unexpected: ${err.stack || err.message}`));
+  process.exit(3);
+});

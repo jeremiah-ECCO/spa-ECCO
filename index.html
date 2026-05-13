@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sovereign Provenance Architecture · v0.3 · Ethereal Connections Co.</title>
+<meta name="description" content="A consortium specification for inspectable AI governance. Living document. Stewarded by Ethereal Connections Co." />
+<meta property="og:title" content="Sovereign Provenance Architecture · v0.3" />
+<meta property="og:description" content="A consortium specification for inspectable AI governance. Living document." />
+<meta property="og:type" content="article" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --paper:#fdfdfb;
+  --paper-deep:#f6f5f1;
+  --ink:#15191e;
+  --ink-soft:#3a414a;
+  --ink-faint:#6c7480;
+  --ink-mute:#9aa1ab;
+  --rule:#d8d4cc;
+  --rule-soft:#e9e5dc;
+  --accent:#0a5d6b;
+  --accent-deep:#063a44;
+  --accent-soft:#e6f0f1;
+  --highlight:#f4ebd2;
+  --teal-core:#00f0ff;
+  --teal-dim:#00a8a8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:17px;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-weight:400;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  background-image:
+    linear-gradient(to bottom,var(--paper) 0%,var(--paper) 100%),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,transparent 31px,
+      rgba(0,0,0,0.012) 31px,rgba(0,0,0,0.012) 32px
+    );
+  background-blend-mode:multiply;
+  padding:48px 24px 96px;
+}
+
+.sheet{
+  max-width:780px;
+  margin:0 auto;
+  background:var(--paper);
+  position:relative;
+}
+
+/* ═══════════════════ EXECUTIVE LETTERHEAD ═══════════════════ */
+.letterhead{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:24px;
+  align-items:center;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--ink);
+  position:relative;
+}
+.letterhead::after{
+  content:'';
+  position:absolute;
+  left:0;right:0;
+  bottom:-4px;
+  height:1px;
+  background:var(--ink);
+}
+
+/* GEOMETRY PACKAGE — static, white-room adapted */
+.geometry-package{
+  position:relative;
+  width:180px;height:180px;
+  flex-shrink:0;
+}
+.ring-outer{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:155px;height:155px;border-radius:50%;
+  background:radial-gradient(circle,#ffffff 0%,#ededea 35%,#9a9a96 50%,#3a3a36 58%,#000000 64%,#3a3a36 72%,#9a9a96 82%,#d8d8d4 92%,#ffffff 100%);
+  border:1.5px solid var(--accent-deep);
+  box-shadow:0 1px 2px rgba(0,0,0,0.15),0 0 0 1px rgba(0,0,0,0.04);
+  z-index:1;
+}
+.flower-wrap{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:220px;height:220px;
+  z-index:5;
+  pointer-events:none;
+}
+.seal-container{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:20;width:150px;height:150px;
+}
+.seal-ring{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:150px;height:150px;border-radius:50%;
+  border:2px solid var(--accent);
+  box-shadow:inset 0 0 3px rgba(10,93,107,0.4);
+  z-index:3;
+}
+.seal-img{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;width:118px;height:118px;
+  border-radius:50%;
+  object-fit:cover;
+  background:var(--paper-deep);
+}
+.seal-fallback{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:118px;height:118px;border-radius:50%;
+  background:radial-gradient(circle,var(--accent) 0%,var(--accent-deep) 100%);
+  z-index:1;
+}
+
+.lh-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.lh-org{
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  color:var(--ink);
+  line-height:1.1;
+}
+.lh-org em{font-style:italic;font-weight:500;color:var(--accent);}
+.lh-loc{
+  font-family:'Outfit',sans-serif;
+  font-size:10px;
+  letter-spacing:0.18em;
+  font-weight:500;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-top:6px;
+}
+.lh-url{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.04em;
+  color:var(--accent);
+  margin-top:3px;
+}
+
+/* ═══════════════════ DOCUMENT METADATA BLOCK ═══════════════════ */
+.doc-meta{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:32px;
+  margin:36px 0 16px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--rule);
+  align-items:flex-end;
+}
+.doc-type{
+  font-family:'Outfit',sans-serif;
+  font-size:10px;
+  letter-spacing:0.32em;
+  font-weight:600;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  margin-bottom:8px;
+}
+.doc-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:500;
+  font-size:42px;
+  line-height:1.05;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.doc-title em{font-style:italic;color:var(--accent);font-weight:500;}
+.doc-subtitle{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:17px;
+  font-weight:400;
+  color:var(--ink-soft);
+  line-height:1.4;
+  max-width:520px;
+}
+.doc-version{
+  text-align:right;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  line-height:1.7;
+  color:var(--ink-soft);
+}
+.doc-version .v-num{
+  color:var(--accent);
+  font-size:14px;
+  font-weight:500;
+  display:block;
+  margin-bottom:2px;
+}
+
+/* Properties strip */
+.doc-props{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:32px;
+  row-gap:6px;
+  margin-bottom:48px;
+  padding:14px 0 18px;
+  border-bottom:2px solid var(--ink);
+  font-family:'Outfit',sans-serif;
+  font-size:11px;
+  letter-spacing:0.04em;
+  color:var(--ink-soft);
+}
+.doc-props .row{display:flex;gap:10px;}
+.doc-props .key{
+  color:var(--ink-faint);
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  font-size:9px;
+  font-weight:600;
+  flex-shrink:0;
+  width:88px;
+  padding-top:2px;
+}
+.doc-props .val{color:var(--ink);font-weight:500;}
+.doc-props .val.live{color:var(--accent);}
+.doc-props .val.live::before{
+  content:'';display:inline-block;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  margin-right:7px;vertical-align:middle;
+  box-shadow:0 0 0 2px var(--accent-soft);
+}
+.doc-props .val a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:0.15s;}
+.doc-props .val a:hover{border-bottom-color:var(--accent);}
+
+/* ═══════════════════ DOCUMENT BODY ═══════════════════ */
+section{margin-bottom:42px;}
+.s-num{
+  font-family:'Outfit',sans-serif;
+  font-size:11px;
+  letter-spacing:0.28em;
+  font-weight:700;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:block;
+  margin-bottom:6px;
+}
+h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:500;
+  font-size:28px;
+  letter-spacing:-0.005em;
+  color:var(--ink);
+  line-height:1.15;
+  margin-bottom:18px;
+  border-bottom:1px solid var(--rule-soft);
+  padding-bottom:10px;
+}
+h2 em{font-style:italic;color:var(--accent);font-weight:500;}
+h3{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  font-size:18px;
+  color:var(--ink);
+  margin-top:24px;
+  margin-bottom:8px;
+  letter-spacing:0.01em;
+}
+p{
+  font-size:17px;
+  line-height:1.7;
+  color:var(--ink);
+  margin-bottom:14px;
+}
+p:last-child{margin-bottom:0;}
+
+.lede{
+  font-size:19px;
+  font-style:italic;
+  color:var(--ink-soft);
+  border-left:2px solid var(--accent);
+  padding:2px 0 2px 18px;
+  margin-bottom:20px;
+}
+
+/* Numbered tenets / criteria */
+.numbered{
+  list-style:none;
+  counter-reset:item;
+  margin:18px 0;
+}
+.numbered li{
+  counter-increment:item;
+  padding:14px 0 14px 56px;
+  position:relative;
+  border-bottom:1px solid var(--rule-soft);
+  font-size:17px;
+  line-height:1.65;
+}
+.numbered li:last-child{border-bottom:none;}
+.numbered li::before{
+  content:counter(item,decimal-leading-zero);
+  position:absolute;
+  left:0;top:14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  font-weight:500;
+  letter-spacing:0.05em;
+  padding-top:4px;
+  border-top:1px solid var(--accent);
+  width:36px;
+}
+.numbered li strong{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  font-style:italic;
+  color:var(--ink);
+  font-size:18px;
+}
+
+/* Lettered conformance criteria */
+.lettered{
+  list-style:none;
+  counter-reset:letter;
+  margin:18px 0;
+}
+.lettered li{
+  counter-increment:letter;
+  padding:12px 0 12px 56px;
+  position:relative;
+  border-bottom:1px solid var(--rule-soft);
+  font-size:17px;
+  line-height:1.65;
+}
+.lettered li:last-child{border-bottom:none;}
+.lettered li::before{
+  content:'§ ' counter(letter,lower-alpha);
+  position:absolute;
+  left:0;top:12px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  font-weight:500;
+  letter-spacing:0.05em;
+  padding-top:4px;
+  border-top:1px solid var(--accent);
+  width:38px;
+}
+.lettered li strong{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  color:var(--ink);
+}
+
+/* Vocabulary registry */
+.glossary{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:14px 24px;
+  margin:18px 0;
+  padding:18px 0;
+  border-top:1px solid var(--rule-soft);
+  border-bottom:1px solid var(--rule-soft);
+}
+.glossary dt{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  font-style:italic;
+  font-size:17px;
+  color:var(--accent);
+  align-self:start;
+  padding-top:1px;
+}
+.glossary dd{
+  font-size:16px;
+  color:var(--ink);
+  line-height:1.55;
+}
+
+/* Normative-language emphasis */
+.must,.should,.may{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.86em;
+  font-weight:500;
+  letter-spacing:0.04em;
+  padding:1px 5px;
+  border-radius:2px;
+  vertical-align:baseline;
+}
+.must{background:var(--highlight);color:var(--accent-deep);}
+.should{background:var(--accent-soft);color:var(--accent-deep);}
+.may{background:var(--rule-soft);color:var(--ink-soft);}
+
+/* Inline emphases */
+em{font-style:italic;}
+strong{font-weight:600;}
+.ink-soft{color:var(--ink-soft);}
+
+/* Reference implementations table */
+.refs{
+  margin:18px 0;
+  border-top:2px solid var(--ink);
+}
+.ref-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:24px;
+  padding:18px 0;
+  border-bottom:1px solid var(--rule);
+  align-items:flex-start;
+}
+.ref-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  font-size:18px;
+  color:var(--ink);
+  display:block;
+  margin-bottom:4px;
+}
+.ref-desc{
+  font-size:15px;
+  color:var(--ink-soft);
+  line-height:1.5;
+}
+.ref-desc a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;}
+.ref-desc a:hover{border-bottom-color:var(--accent);}
+.ref-status{
+  font-family:'Outfit',sans-serif;
+  font-size:9px;
+  letter-spacing:0.18em;
+  font-weight:700;
+  text-transform:uppercase;
+  white-space:nowrap;
+  padding:5px 10px;
+  border-radius:2px;
+  background:var(--accent-soft);
+  color:var(--accent-deep);
+  border:1px solid var(--accent);
+}
+.ref-status.contrib{
+  background:var(--paper-deep);
+  color:var(--ink-soft);
+  border-color:var(--rule);
+}
+
+/* ═══════════════════ SIGNATURE & SEAL ═══════════════════ */
+.signature{
+  margin-top:64px;
+  padding:56px 0 56px 0;
+  border-top:2px solid var(--ink);
+  display:grid;
+  grid-template-columns:auto 1fr auto 1fr;
+  gap:32px;
+  align-items:center;
+}
+.sig-block{
+  font-family:'Cormorant Garamond',serif;
+  grid-column:1;
+}
+.sig-name{
+  font-size:24px;
+  font-weight:500;
+  font-style:italic;
+  color:var(--ink);
+  border-bottom:1px solid var(--ink);
+  padding-bottom:4px;
+  margin-bottom:8px;
+  display:inline-block;
+}
+.sig-title{
+  font-family:'Outfit',sans-serif;
+  font-size:11px;
+  letter-spacing:0.18em;
+  font-weight:600;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  line-height:1.7;
+}
+/* ═══════════════════ STAMP SEAL (signature block) ═══════════════════ */
+/* Lifted from commission.etherealconnectionsco.com, scaled 340→200, cyan palette retained */
+.stamp-wrap{
+  position:relative;
+  width:200px;height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  grid-column:3;
+}
+.stamp-disc{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:188px;height:188px;border-radius:50%;
+  background:#000;
+  z-index:0;
+}
+.stamp-flower{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:166px;height:166px;
+  z-index:1;
+  pointer-events:none;
+}
+.stamp-flower svg{overflow:visible;}
+.stamp-ring-outer{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:152px;height:152px;border-radius:50%;
+  border:3px solid var(--teal-core);
+  box-shadow:0 0 22px rgba(0,240,255,0.65),0 0 45px rgba(0,240,255,0.3),inset 0 0 18px rgba(0,240,255,0.2);
+  z-index:2;
+  pointer-events:none;
+}
+.stamp-plasma{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:70px;height:70px;border-radius:50%;
+  background:var(--teal-dim);
+  animation:orb-flare 1.5s ease-in-out infinite alternate;
+  z-index:3;
+}
+.stamp-ring-inner{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:88px;height:88px;border-radius:50%;
+  border:4px solid var(--teal-dim);
+  box-shadow:0 0 12px rgba(0,240,255,0.4),inset 0 0 12px rgba(0,240,255,0.4);
+  z-index:4;
+}
+.stamp-img{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:87px;height:87px;border-radius:50%;
+  object-fit:cover;
+  clip-path:circle(44% at 50% 50%);
+  z-index:5;
+}
+.stamp-orbit{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  animation:spinText 22s linear infinite;
+  pointer-events:none;
+  z-index:6;
+}
+.stamp-orbit-text{
+  font-family:'Outfit',sans-serif;
+  font-weight:700;
+  font-size:7px;
+  fill:var(--ink-soft);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+@keyframes spin-cw-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes spin-ccw{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes spin-cw-fast{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes orb-flare{0%{opacity:0.45;box-shadow:0 0 20px rgba(0,240,255,0.3)}100%{opacity:0.65;box-shadow:0 0 40px rgba(0,240,255,0.5)}}
+@keyframes spinText{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.stamp-flower .spin-cw-slow{animation:spin-cw-slow 60s linear infinite;}
+.stamp-flower .spin-ccw{animation:spin-ccw 40s linear infinite;}
+.stamp-flower .spin-cw-fast{animation:spin-cw-fast 25s linear infinite;}
+
+/* ═══════════════════ FOOTER ═══════════════════ */
+footer{
+  margin-top:0;
+  padding-top:18px;
+  border-top:1px solid var(--rule);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:18px;
+  font-family:'Outfit',sans-serif;
+  font-size:10px;
+  letter-spacing:0.08em;
+  color:var(--ink-faint);
+}
+footer .col{display:flex;flex-direction:column;gap:4px;}
+footer .col strong{color:var(--ink);font-weight:600;}
+footer a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;}
+footer a:hover{border-bottom-color:var(--accent);}
+footer .doctrine{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  color:var(--ink-soft);
+  letter-spacing:normal;
+}
+
+/* Living-doc indicator */
+.living-indicator{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Outfit',sans-serif;
+  font-size:10px;letter-spacing:0.18em;
+  font-weight:600;text-transform:uppercase;
+  color:var(--accent);
+}
+.living-indicator::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+
+/* Responsive */
+@media(max-width:640px){
+  body{padding:24px 16px 64px;}
+  .doc-title{font-size:32px;}
+  .doc-meta{grid-template-columns:1fr;gap:18px;}
+  .doc-version{text-align:left;}
+  .doc-props{grid-template-columns:1fr;}
+  .lh-org{font-size:20px;}
+  .signature{grid-template-columns:1fr;}
+  .sig-block{grid-column:auto;}
+  .stamp-wrap{grid-column:auto;margin:0 auto;}
+  .ref-row{grid-template-columns:1fr;}
+  .glossary{grid-template-columns:1fr;}
+  .glossary dt{margin-top:8px;}
+}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .sheet{max-width:none;}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ═══════════════════ EXECUTIVE LETTERHEAD ═══════════════════ -->
+  <header class="letterhead">
+    <div class="geometry-package">
+      <div class="ring-outer"></div>
+      <div class="flower-wrap" id="flower"></div>
+      <div class="seal-container">
+        <div class="seal-fallback"></div>
+        <div class="seal-ring"></div>
+        <img src="seal.jpg" class="seal-img" alt="ECCO" onerror="this.style.display='none'">
+      </div>
+    </div>
+    <div class="lh-text">
+      <div class="lh-org">Ethereal Connections <em>Co.</em></div>
+      <div class="lh-loc">Denver, Colorado · Founded 2025</div>
+      <div class="lh-url">etherealconnectionsco.com · jeremiah@etherealconnectionsco.com</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ DOCUMENT METADATA ═══════════════════ -->
+  <div class="doc-meta">
+    <div>
+      <div class="doc-type">Consortium Specification · Living Document</div>
+      <h1 class="doc-title">Sovereign <em>Provenance</em> Architecture</h1>
+      <div class="doc-subtitle">A minimum specification for inspectable, deterministic, provenance-bearing AI governance — open to ratification by community consensus.</div>
+    </div>
+    <div class="doc-version">
+      <span class="v-num">v 0.3</span>
+      Issued · 7 May 2026<br>
+      Revised · 13 May 2026<br>
+      <span class="living-indicator" style="margin-top:8px;">Living Doc</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ DOCUMENT PROPERTIES ═══════════════════ -->
+  <div class="doc-props">
+    <div class="row"><span class="key">Status</span><span class="val live">Proposed · Open to Signatory</span></div>
+    <div class="row"><span class="key">License</span><span class="val">CC BY-SA 4.0</span></div>
+    <div class="row"><span class="key">Steward</span><span class="val">J.W. Hearne · Ethereal Connections Co.</span></div>
+    <div class="row"><span class="key">Canonical</span><span class="val"><a href="https://etherealconnectionsco.com/spa">etherealconnectionsco.com/spa</a></span></div>
+    <div class="row"><span class="key">Reference</span><span class="val">ECCO Master Context (Public Edition)</span></div>
+    <div class="row"><span class="key">Convention</span><span class="val">RFC 2119 normative language</span></div>
+  </div>
+
+  <!-- ═══════════════════ §1 PREAMBLE ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 1 — Preamble</span>
+    <h2>The architecture is the <em>architecture.</em> The brands are the brands.</h2>
+    <p class="lede">There can't be enough of us in this game until we are operating under shared architectural truth. This document proposes that minimum.</p>
+    <p>The Sovereign Provenance Architecture (hereafter <strong>SPA</strong>) describes a consortium specification for AI governance systems that operate under inspectable, deterministic, and provenance-bearing principles. SPA does not propose a brand, product, or platform. It proposes the architectural minimum that allows independently-operating firms — each with its own commercial brand and methodology — to converge on shared truths regarding how AI systems must be governed at formation, custody, and execution.</p>
+    <p>The motivation: as AI governance vocabulary proliferates across firms and conferences (admissibility, custody, refusal rails, anti-entropy, sovereignty, deterministic governance, pre-execution integrity), there is a growing gap between firms that ship inspectable architecture and firms that publish vocabulary without architecture behind it. SPA closes that gap by defining what <em>conformant implementation</em> means.</p>
+    <p>This document is published as <strong>v0.3</strong>. It is a Living Document. It will evolve. The protocol for revision is specified in §8; the v0.2 → v0.3 changelog is recorded inline there.</p>
+  </section>
+
+  <!-- ═══════════════════ §2 CORE TENETS ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 2 — Core Tenets</span>
+    <h2>The six principles every conformant implementation <em>MUST</em> honor.</h2>
+    <p>The following tenets are normative. They define what it means for an architecture to operate under the Sovereign Provenance Architecture, regardless of brand, vocabulary, or commercial form.</p>
+    <ol class="numbered">
+      <li><strong>Provenance over performance.</strong> A system's claims about its own behavior are subordinate to its ability to demonstrate the origin of every decision it produces.</li>
+      <li><strong>Inspectability over opacity.</strong> Architecture <span class="must">MUST</span> be readable from outside the firm. Source, specification, or live surface — at least one inspectable artifact per claimed capability.</li>
+      <li><strong>Determinism at the gate.</strong> Where governance is claimed, gating decisions <span class="must">MUST</span> be reproducible: same input, same context, same outcome.</li>
+      <li><strong>Custody before execution.</strong> Every action that materially affects an external system <span class="must">MUST</span> be admitted by a custody check before commitment.</li>
+      <li><strong>Anti-entropy as discipline.</strong> Governance gates decay without active maintenance. Implementations <span class="must">MUST</span> specify how their gates resist decay over time.</li>
+      <li><strong>Consortium, not vendor lock.</strong> Implementations <span class="should">SHOULD</span> be interoperable in vocabulary, conformant in minimums, and sovereign in branding. SPA does not certify, license, or charge.</li>
+    </ol>
+  </section>
+
+  <!-- ═══════════════════ §3 REQUIRED LAYERS ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 3 — Required Architectural Layers</span>
+    <h2>Five layers. Names normative; <em>implementation</em> is not.</h2>
+    <p>A conformant implementation <span class="must">MUST</span> document, name, and inspectably ship the following five architectural layers. The layer <em>names</em> are normative for vocabulary alignment. The layer <em>implementations</em> are sovereign — each firm builds them as fits its commercial frame.</p>
+
+    <h3>3.1 — The Admissibility Layer</h3>
+    <p>Determines whether a state, instruction, or trajectory is <em>structurally valid</em> to enter the system. Answers <em>"should this exist at all?"</em> before <em>"is this accurate?"</em> Inadmissible states <span class="must">MUST</span> be refused before propagation, not corrected after.</p>
+
+    <h3>3.2 — The Provenance Layer</h3>
+    <p>Maintains custody of origin, authorship, data inputs, and transformation history for every state admitted by §3.1. Implementations <span class="may">MAY</span> use ledgers, tamper-evident logs, cryptographic attestation, or signed event chains. The layer's output <span class="must">MUST</span> answer the question <em>"what was made, by whom, with what data, when?"</em></p>
+
+    <h3>3.3 — The Anti-Entropy Layer</h3>
+    <p>Specifies how the system prevents gates from decaying into ceremony over time. Implementations <span class="must">MUST</span> publish their maintenance discipline — periodic re-verification, drift detection, replay-based audit, or equivalent. <em>A gate without anti-entropy is rubber-stamping with extra steps.</em></p>
+
+    <h3>3.4 — The Sovereignty Layer</h3>
+    <p>Preserves meaningful human authority at the decision boundary. Defines who may override admissibility, when, with what credential, and how that override is recorded. Sovereignty <span class="must">MUST NOT</span> be implicit; it <span class="must">MUST</span> be named, scoped, and ledgered.</p>
+
+    <h3>3.5 — The Sanctioning Layer</h3>
+    <p>Issues the final tamper-evident decision (admitted / refused / escalated) that downstream systems consume. The decision <span class="must">MUST</span> be replayable: any third party with appropriate authority <span class="must">MUST</span> be able to reconstruct why a given decision was rendered.</p>
+
+    <p style="margin-top:18px;font-style:italic;color:var(--ink-soft);">These five layers are derived from the Five-Layer Integrity Architecture documented in ECCO's Master Context (Public Edition, CC BY-NC-ND 4.0). The Vocabulary Registry (§6) reflects terms in convergent use across the AI governance space; vocabulary origin is acknowledged in §9.</p>
+  </section>
+
+  <!-- ═══════════════════ §4 CONFORMANCE CRITERIA ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 4 — Conformance Criteria</span>
+    <h2>What it takes to claim <em>SPA v0.3 Conformant.</em></h2>
+    <p>A firm, product, or implementation is <strong>SPA v0.3 Conformant</strong> if and only if all of the following are true:</p>
+    <ol class="lettered">
+      <li><strong>All five required layers</strong> are documented in a publicly readable specification reachable from a stable URL.</li>
+      <li><strong>At least one architectural artifact is inspectable</strong> per the criteria of §5 — source code repository, deployable spec, or live demonstration surface.</li>
+      <li><strong>Vocabulary is interoperable</strong> — terminology used aligns with the SPA Vocabulary Registry (§6) or provides a public mapping from internal terms to SPA terms.</li>
+      <li><strong>Versioning is transparent</strong> — the implementation's spec carries a version number and a changelog reachable from its primary surface.</li>
+      <li><strong>Stewardship is named</strong> — a single accountable individual or entity is publicly identified and reachable for verification of claims.</li>
+    </ol>
+    <p>A firm or product that honors the Core Tenets (§2) but has not yet met all Conformance Criteria <span class="may">MAY</span> declare itself <strong>SPA v0.3 Aligned</strong>. Alignment is a position; Conformance is a verification.</p>
+  </section>
+
+  <!-- ═══════════════════ §5 INSPECTABILITY ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 5 — Inspectability Requirements</span>
+    <h2>Three pathways. <em>One is required.</em></h2>
+    <p>Per Tenet §2.2, every claimed architectural layer <span class="must">MUST</span> have at least one of the following be true:</p>
+    <ol class="numbered">
+      <li><strong>Source inspectable.</strong> Implementation source published under any OSI-approved license at a stable repository URL.</li>
+      <li><strong>Spec inspectable.</strong> Layer specification published as Markdown, HTML, or PDF at a stable URL, with sufficient detail that an independent implementer could re-implement the layer from the document alone.</li>
+      <li><strong>Surface inspectable.</strong> Live deployed surface that a third party can interact with and observe the layer's behavior in real conditions.</li>
+    </ol>
+    <p>A capability claim with <em>none</em> of the above does not qualify under SPA v0.3, regardless of the quality of the firm's marketing presentation. <span class="ink-soft">Vocabulary without inspectability is not architecture.</span></p>
+  </section>
+
+  <!-- ═══════════════════ §6 VOCABULARY REGISTRY ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 6 — Vocabulary Registry</span>
+    <h2>Shared terms across <em>conformant</em> implementations.</h2>
+    <p>The following vocabulary is normative for SPA v0.3. Implementations <span class="may">MAY</span> use internal aliases but <span class="should">SHOULD</span> publish a mapping to these terms. The registry will grow with future revisions as new terms reach community consensus.</p>
+    <dl class="glossary">
+      <dt>Admissibility</dt><dd>The structural-validity check applied before a state, instruction, or trajectory is permitted to propagate. Operates at formation, not at output.</dd>
+      <dt>Provenance</dt><dd>The traceable origin and transformation history of a state — what was made, by whom, with what data, when.</dd>
+      <dt>Custody</dt><dd>The ongoing maintenance of provenance across the lifecycle of a state. Provenance is the snapshot; custody is the chain.</dd>
+      <dt>Refusal Rail</dt><dd>An enforceable boundary that halts inadmissible action in real time. <em>Refusal is not failure; it is protection.</em></dd>
+      <dt>Anti-Entropy</dt><dd>The maintenance discipline that prevents governance gates from decaying into ceremony. Without anti-entropy, gates become rubber stamps.</dd>
+      <dt>Sovereignty</dt><dd>Meaningful human authority at the decision boundary, named and scoped, never implicit.</dd>
+      <dt>Sanctioning</dt><dd>The final, tamper-evident decision (admitted / refused / escalated) that downstream systems consume.</dd>
+      <dt>Replay-Verifiability</dt><dd>The property that any third party with appropriate authority can reconstruct why a given decision was rendered.</dd>
+      <dt>Decision Boundary</dt><dd>The architectural surface at which governance is enforced and human authority may be invoked.</dd>
+      <dt>Pre-Execution Governance</dt><dd>Governance applied before the system commits. The category that contains §3.1 through §3.5.</dd>
+      <dt>Consortium</dt><dd>SPA's structural model: voluntary association of independently-operating firms converging on shared architectural minimums — sovereign in branding, conformant in substance, equal in participation. Distinguished from hierarchy, certification body, or trade association.</dd>
+    </dl>
+  </section>
+
+  <!-- ═══════════════════ §7 CONSORTIUM MODEL ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 7 — Consortium Model</span>
+    <h2>Stewardship, not <em>incorporation.</em></h2>
+    <p>SPA is governed by a stewardship model. There is no SPA LLC. There is no SPA Foundation. There is no membership fee, no certification body, and no commercial moat at the specification layer.</p>
+    <p>The current steward is <strong>Ethereal Connections Co.</strong>, of Denver, Colorado. Stewardship is open to transfer or rotation by community consensus, defined as a written majority of named Conformant signatories agreeing in writing to a successor.</p>
+    <p>A firm <span class="may">MAY</span> declare Conformance or Alignment unilaterally by:</p>
+    <ol class="numbered">
+      <li><strong>Publishing a public statement</strong> linking to this specification at its canonical URL.</li>
+      <li><strong>Specifying which layers</strong> of §3 the firm's implementation addresses, with citations to the inspectable artifacts of §5.</li>
+      <li><strong>Maintaining the criteria</strong> of §4 for as long as the declaration stands.</li>
+    </ol>
+    <p>Firms wishing to be listed in the public SPA Conformance Registry maintained by the steward <span class="may">MAY</span> submit at the contact address in the letterhead. Inclusion requires verifiable inspectability under §5; the steward reserves the right and obligation to verify before listing.</p>
+  </section>
+
+  <!-- ═══════════════════ §8 VERSIONING ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 8 — Versioning · Living Document Protocol</span>
+    <h2>How this document <em>evolves.</em></h2>
+    <p>This document is a Living Specification. Revisions are governed as follows:</p>
+    <ol class="numbered">
+      <li><strong>Additive changes</strong> (vocabulary additions, clarifications, examples, registry growth) increment the minor version: v0.1 → v0.2.</li>
+      <li><strong>Breaking changes</strong> (modifications to the Tenets of §2, restructuring of the Required Layers of §3, or revisions to Conformance Criteria of §4) increment the major version: v0.x → v1.0.</li>
+      <li><strong>Major revisions</strong> require a 30-day public review period and notice to all currently listed Conformant signatories.</li>
+      <li><strong>All previous versions</strong> remain accessible at versioned URLs. The canonical URL always points to the current version; previous versions are reachable at a versioned suffix.</li>
+      <li><strong>A changelog</strong> is maintained at the canonical URL and updated with every revision.</li>
+    </ol>
+
+    <h3 style="margin-top:28px;">Changelog</h3>
+    <p><strong>v0.1 → v0.2</strong> · 13 May 2026 · §9 corrected. v0.1 listed Vocabulary Contributors that had not declared per §7 and whose external URLs did not meet §5 inspectability. v0.2 removes those entries, replaces the sub-section with a Vocabulary Origin note that attributes the §6 registry honestly, and verifies that ECCO's own Conformant listing tracks actually-inspectable artifacts at issue time. Minor: Master Context reference normalized to "(Public Edition)" without version pin to track the living edition. The correction holds the steward to the same standard the steward holds the field to.</p>
+    <p><strong>v0.2 → v0.3</strong> · 13 May 2026 · Two coupled changes addressing prior inconsistencies between stated principle and operative terms. <em>Vocabulary:</em> "Federation" → "Consortium" across the document, including Tenet 6 header ("Consortium, not vendor lock"), the §7 section heading ("Consortium Model"), meta tags, and body references; a new Consortium entry added to the §6 Vocabulary Registry. <em>License:</em> CC BY-NC-ND 4.0 → CC BY-SA 4.0. The prior license's NonCommercial and NoDerivatives clauses contradicted both §7's "no commercial moat at the specification layer" and §4's invitation of vocabulary mappings as inspectable derivatives; ShareAlike preserves openness across the implementation chain while retaining attribution to ECCO as steward. Both changes are treated as additive under §8.1: no Tenet's normative content was modified — only labeling and the license-layer's openness — and the operative requirements of §§2, 3, and 4 are unchanged between v0.2 and v0.3. The steward acknowledges the prior license terms were inherited from template rather than chosen with the Consortium principle in view; v0.3 corrects the call.</p>
+  </section>
+
+  <!-- ═══════════════════ §9 REFERENCE IMPLEMENTATIONS ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 9 — Reference Implementations · Vocabulary Origin</span>
+    <h2>What's already <em>verifiable</em> at v0.3 issue.</h2>
+    <p>The following are the only claims this document makes about firms or implementations as of v0.3 issue. Listing as Conformant requires verification of all §4 criteria. The steward maintains the registry under the discipline of §§5 and 7, and applies that discipline to the steward's own listings.</p>
+
+    <div class="refs">
+      <div class="ref-row">
+        <div>
+          <span class="ref-name">Ethereal Connections Co. — Master Context (Public Edition)</span>
+          <div class="ref-desc">Five-Layer Integrity Architecture documented in the Public Edition specification. Source published at <a href="https://github.com/jeremiah-ECCO/master-context">github.com/jeremiah-ECCO/master-context</a>. Deployed surfaces referenced from the apex site (<a href="https://etherealconnectionsco.com">etherealconnectionsco.com</a>); the current production state of those surfaces is itself the inspectable artifact per §5.</div>
+        </div>
+        <div class="ref-status">SPA v0.3 Conformant</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:24px;">Vocabulary Origin</h3>
+    <p>The terminology in §6 (Vocabulary Registry) derives from the architecture work documented in the ECCO Master Context (Public Edition) and the surfaces referenced above. The AI governance field at large is converging on overlapping vocabulary in parallel &mdash; admissibility, custody, refusal rails, anti-entropy, sovereignty, deterministic governance, pre-execution integrity &mdash; through independent work at multiple firms, conferences, and standards bodies. SPA does not claim invention of any term in §6; it claims the architectural minimum that gives the terms operational meaning.</p>
+    <p>The Vocabulary Registry remains open to formal contribution per §7 from firms whose published work would extend or refine the registry. Submissions are inspected against §5 prior to listing; the same discipline applies to the steward.</p>
+
+    <p style="margin-top:14px;font-size:15px;font-style:italic;color:var(--ink-soft);">Firms wishing to be added as Conformant signatories at future revisions <span class="may">MAY</span> declare in accordance with §7. The registry is open. Inspectability is the credential; the steward verifies before listing.</p>
+  </section>
+
+  <!-- ═══════════════════ §10 INVITATION ═══════════════════ -->
+  <section>
+    <span class="s-num">§ 10 — Invitation · Closing</span>
+    <h2>The work is the <em>bridge.</em></h2>
+    <p>The Sovereign Provenance Architecture is open. There is no fee, no exclusion, and no commercial moat at the specification layer. Firms operating in the AI governance, integrity, custody, or admissibility space are invited to declare Alignment or Conformance, contribute to the Vocabulary Registry, or propose revisions in accordance with §7 and §8.</p>
+    <p>The doctrine that informs this specification — <em>provenance over performance, infrastructure over influence, doctrine over excuse</em> — is offered without proprietary claim. Firms are encouraged to publish their own architecture, ship their own surfaces, and let inspectability be the credential rather than the gatekeeping.</p>
+    <p>The architecture is the architecture. The brands are the brands. The work is the bridge.</p>
+  </section>
+
+  <!-- ═══════════════════ SIGNATURE ═══════════════════ -->
+  <div class="signature">
+    <div class="sig-block">
+      <div class="sig-name">J. W. Hearne</div>
+      <div class="sig-title">
+        Steward · Sovereign Provenance Architecture<br>
+        Founder · Ethereal Connections Co.<br>
+        Denver, Colorado · 7 May 2026
+      </div>
+    </div>
+    <div class="stamp-wrap">
+      <div class="stamp-disc"></div>
+      <div class="stamp-flower">
+        <svg viewBox="0 0 100 100" width="166" height="166" style="overflow:visible">
+          <g fill="none" stroke="var(--teal-dim)" stroke-width="1.2" opacity="0.35"><circle cx="50" cy="50" r="20"/><circle cx="50" cy="30" r="20"/><circle cx="50" cy="70" r="20"/><circle cx="32.68" cy="40" r="20"/><circle cx="67.32" cy="40" r="20"/><circle cx="32.68" cy="60" r="20"/><circle cx="67.32" cy="60" r="20"/></g>
+          <g class="spin-cw-slow" style="transform-origin:50px 50px"><g fill="none" stroke="var(--teal-dim)" stroke-width="0.75" opacity="0.65" filter="drop-shadow(0 0 5px var(--teal-dim))"><circle cx="50" cy="50" r="20"/><circle cx="50" cy="30" r="20"/><circle cx="50" cy="70" r="20"/><circle cx="32.68" cy="40" r="20"/><circle cx="67.32" cy="40" r="20"/><circle cx="32.68" cy="60" r="20"/><circle cx="67.32" cy="60" r="20"/></g></g>
+          <g class="spin-ccw" style="transform-origin:50px 50px"><g fill="none" stroke="var(--teal-dim)" stroke-width="0.75" opacity="0.75" filter="drop-shadow(0 0 6px var(--teal-dim))"><circle cx="50" cy="50" r="20"/><circle cx="50" cy="30" r="20"/><circle cx="50" cy="70" r="20"/><circle cx="32.68" cy="40" r="20"/><circle cx="67.32" cy="40" r="20"/><circle cx="32.68" cy="60" r="20"/><circle cx="67.32" cy="60" r="20"/></g></g>
+          <g class="spin-cw-fast" style="transform-origin:50px 50px"><g fill="none" stroke="var(--teal-dim)" stroke-width="0.75" opacity="0.9" filter="drop-shadow(0 0 7px var(--teal-dim))"><circle cx="50" cy="50" r="20"/><circle cx="50" cy="30" r="20"/><circle cx="50" cy="70" r="20"/><circle cx="32.68" cy="40" r="20"/><circle cx="67.32" cy="40" r="20"/><circle cx="32.68" cy="60" r="20"/><circle cx="67.32" cy="60" r="20"/></g></g>
+        </svg>
+      </div>
+      <div class="stamp-ring-outer"></div>
+      <div class="stamp-plasma"></div>
+      <div class="stamp-ring-inner"></div>
+      <img class="stamp-img" src="seal.jpg" alt="ECCO · Ethereal Connections Co." />
+      <svg class="stamp-orbit" viewBox="0 0 200 200">
+        <defs><path id="stampOrbitPath" d="M100,100 m-82,0 a82,82 0 1,1 164,0 a82,82 0 1,1 -164,0" fill="none"/></defs>
+        <text><textPath href="#stampOrbitPath" class="stamp-orbit-text" startOffset="0%">STEWARDSHIP · SOVEREIGN PROVENANCE ARCHITECTURE · STEWARDSHIP · SOVEREIGN PROVENANCE ARCHITECTURE · </textPath></text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer>
+    <div class="col">
+      <strong>Sovereign Provenance Architecture</strong>
+      <span>v 0.3 · Living Document · Issued 7 May 2026 · Revised 13 May 2026</span>
+      <span>Canonical: <a href="https://etherealconnectionsco.com/spa">etherealconnectionsco.com/spa</a></span>
+    </div>
+    <div class="col">
+      <strong>License</strong>
+      <span>CC BY-SA 4.0 · Specification text only</span>
+      <span>Contact: <a href="mailto:jeremiah@etherealconnectionsco.com">jeremiah@etherealconnectionsco.com</a></span>
+    </div>
+    <div class="col doctrine">
+      Provenance over performance.<br>
+      Infrastructure over influence.<br>
+      Doctrine over excuse.
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════ FLOWER OF LIFE — STATIC, WHITE-ROOM ═══════════════════ -->
+<script>
+(function(){
+  function flowerOfLife(sz, stroke, opacity){
+    var s = '<circle cx="50" cy="50" r="20"/><circle cx="50" cy="30" r="20"/><circle cx="50" cy="70" r="20"/><circle cx="32.68" cy="40" r="20"/><circle cx="67.32" cy="40" r="20"/><circle cx="32.68" cy="60" r="20"/><circle cx="67.32" cy="60" r="20"/>';
+    return '<svg viewBox="0 0 100 100" width="'+sz+'" height="'+sz+'" style="overflow:visible">'+
+      '<g fill="none" stroke="'+stroke+'" stroke-width="0.6" opacity="'+opacity+'">'+s+'</g>'+
+    '</svg>';
+  }
+  var f = document.getElementById('flower');
+  if(f) f.innerHTML = flowerOfLife(220, '#0a5d6b', 0.55);
+})();
+</script>
+</body>
+</html>

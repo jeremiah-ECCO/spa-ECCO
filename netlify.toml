@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════
+#  Netlify configuration — Sovereign Provenance Architecture
+#  Static site. No build step. Headers + caching + redirects.
+# ═══════════════════════════════════════════════════════════
+
+[build]
+  publish = "."
+  command = "node check-links.mjs"
+
+# ─── SECURITY HEADERS — applied to all routes ──────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# ─── CACHING — seal is immutable per deploy ────────────────
+[[headers]]
+  for = "/seal.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ─── CACHING — HTML is short-lived so revisions ship fast ──
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# ─── REDIRECTS — canonical path collapses to root ──────────
+# Apex serves SPA directly. /spa path redirects for any
+# inbound links that include the path suffix.
+[[redirects]]
+  from = "/spa"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/spa/*"
+  to = "/:splat"
+  status = 301
+  force = true
